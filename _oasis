@@ -1,0 +1,22 @@
+OASISFormat: 0.4
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Name: ogh
+Version: 0.0.1
+Synopsis: Using the GitHub API from OCaml
+Authors: Jeff Hammerbacher <jeff.hammerbacher@gmail.com>
+License: LGPL with OCaml linking exception
+
+Description: Using the GitHub API from OCaml
+Homepage: https://github.com/hammer/ogh
+
+Executable "ogh"
+  Path: .
+  MainIs: ogh.ml
+  CompiledObject: best
+  BuildDepends:
+    github.unix,
+    lwt.unix,
+    lwt.syntax
+
