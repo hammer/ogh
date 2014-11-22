@@ -1,0 +1,11 @@
+# emacs
+*~
+
+# ocaml
+*.native
+Makefile
+configure
+setup.ml
+setup.log
+setup.data
+_build
