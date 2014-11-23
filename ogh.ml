@@ -1,3 +1,7 @@
+open Lwt
+open Printf
+open Github_t
+
 let gh_user = Sys.getenv "GITHUB_USER"
 let gh_pass = Sys.getenv "GITHUB_PASSWORD"
 
@@ -12,10 +16,10 @@ let t =
     run (
     Github.Repo.info ~token ~user:"hammer" ~repo:"ogh" () >>=
     fun info ->
-      Printf.eprintf "repo %s\n" info.repo_description;
+      eprintf "Description of ogh repo: %s\n" info.repo_description;
       return ()
       ) in
-  Lwt.return ()
+  return ()
 
 let _ = Lwt_main.run t
 
