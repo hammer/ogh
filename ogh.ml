@@ -13,8 +13,8 @@ let print_repo_info m =
           m.repo_name m.repo_description m.repo_watchers m.repo_open_issues
 
 let get_token cookie_name =
-  lwt ghcj = Github_cookie_jar.init () in
-  lwt auth = Github_cookie_jar.get ghcj ~name:"ogh" in
+  Github_cookie_jar.init () >>= fun ghcj ->
+  Github_cookie_jar.get ghcj ~name:"ogh" >>= fun auth ->
   return (Github.Token.of_auth (BatOption.get auth))
 
 (* This code assumes you have already gotten the token
