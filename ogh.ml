@@ -21,8 +21,10 @@ let get_token cookie_name =
    and saved it locally in your cookie jar *)
 let t =
   get_token "ogh" >>= fun token ->
-  ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ogh") >|= print_repo_info >>
-  ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ocass") >|= print_repo_info >>
+  ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ogh") >|=
+  print_repo_info >>= fun _ ->
+  ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ocass") >|=
+  print_repo_info >>= fun _ ->
   return ()
 
 let _ = Lwt_main.run t
