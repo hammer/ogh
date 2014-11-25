@@ -22,9 +22,9 @@ let get_token cookie_name =
 let t =
   get_token "ogh" >>= fun token ->
   ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ogh") >|=
-  print_repo_info >>= fun _ ->
+  print_repo_info >>= fun () ->
   ask_github (Github.Repo.info ~token ~user:"hammer" ~repo:"ocass") >|=
-  print_repo_info >>= fun _ ->
+  print_repo_info >>= fun () ->
   return ()
 
 let _ = Lwt_main.run t
