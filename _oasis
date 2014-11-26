@@ -18,7 +18,8 @@ Executable "ogh"
   BuildDepends:
     github.unix,
     lwt.unix,
-    lwt.syntax,
-    batteries
+    batteries,
+    yojson
+
 
 
