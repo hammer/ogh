@@ -16,6 +16,9 @@ let make_org_teams_uri ~org =
 let make_team_repos_uri ~team =
   Uri.of_string (Printf.sprintf "%s/teams/%d/repos" gh_api_base_url team)
 
+let make_repo_branches_uri ~org ~repo =
+  Uri.of_string (Printf.sprintf "%s/repos/%s/%s/branches" gh_api_base_url org repo)
+
 let print_repo_info ~m =
   let open Printf in
   let open Github_t in
@@ -29,12 +32,14 @@ let get_owners_id ~org_teams_json =
   let owners_team = List.filter is_owners (json |> to_list) in
   List.hd owners_team |> member "id" |> to_int
 
-let print_repo_infos ~team_repos_json =
+let get_repos ~team_repos_json =
   let open Yojson.Basic.Util in
   let json = Yojson.Basic.from_string team_repos_json in
-  let gh_t_from_json repo_el = Github_j.repo_of_string (Yojson.Basic.to_string repo_el) in
-  let print_repo_from_json repo_el = print_repo_info (gh_t_from_json repo_el) in
-  List.iter print_repo_from_json  (json |> to_list)
+  json |> to_list
+
+let get_repo_name ~repo_info_json =
+  let open Yojson.Basic.Util in
+  repo_info_json |> member "name" |> to_string
 
 let get_org_owners_id ~token ~org =
   let open Lwt in
@@ -45,8 +50,14 @@ let get_org_owners_id ~token ~org =
 let get_team_repos ~token ~team =
   let open Lwt in
   let team_repos_uri = make_team_repos_uri team in
-  let handle_response s = return (print_repo_infos s) in
+  let handle_response s = return (get_repos s) in
   Github.Monad.run (Github.API.get ~token:token ~uri:team_repos_uri handle_response)
+
+let print_repo_branches ~token ~org ~repo =
+  let open Lwt in
+  let repo_branches_uri = make_repo_branches_uri org repo in
+  let handle_response s = Lwt_io.printl s in
+  Github.Monad.run (Github.API.get ~token:token ~uri:repo_branches_uri handle_response)
 
 (* This code assumes you have already gotten the token
    and saved it locally in your cookie jar *)
@@ -54,7 +65,9 @@ let print_org_repos ~cookie_name ~org =
   let open Lwt in
   get_token cookie_name >>= fun token ->
   get_org_owners_id token org >>= fun owners_id ->
-  get_team_repos token owners_id >>= fun () ->
+  get_team_repos token owners_id >>= fun team_repos ->
+  let print_from_json repo = print_repo_branches token org (get_repo_name repo) in
+  Lwt_list.iter_s print_from_json team_repos >>= fun () ->
   return ()
 
 let _ = Lwt_main.run (print_org_repos "ogh" "hammerlab")
