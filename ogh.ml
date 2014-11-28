@@ -16,14 +16,21 @@ let make_org_teams_uri ~org =
 let make_team_repos_uri ~team =
   Uri.of_string (Printf.sprintf "%s/teams/%d/repos" gh_api_base_url team)
 
-let make_repo_branches_uri ~org ~repo =
-  Uri.of_string (Printf.sprintf "%s/repos/%s/%s/branches" gh_api_base_url org repo)
-
 let print_repo_info ~m =
   let open Printf in
   let open Github_t in
-  eprintf "repo %s: %s (%d watchers, %d open issues)\n%!"
+  eprintf "  repo %s: %s (%d watchers, %d open issues)\n%!"
           m.repo_name m.repo_description m.repo_watchers m.repo_open_issues
+
+let print_repo_branches ~repo_branches =
+  let open Printf in
+  let open Github_t in
+  let open Lwt in
+  let print_branch b = eprintf "branch %s: %s\n%!"
+                             b.repo_branch_name
+                             b.repo_branch_commit.repo_commit_url in
+  List.iter print_branch repo_branches;
+  return ()
 
 let get_owners_id ~org_teams_json =
   let open Yojson.Basic.Util in
@@ -55,9 +62,9 @@ let get_team_repos ~token ~team =
 
 let print_repo_branches ~token ~org ~repo =
   let open Lwt in
-  let repo_branches_uri = make_repo_branches_uri org repo in
-  let handle_response s = Lwt_io.printl s in
-  Github.Monad.run (Github.API.get ~token:token ~uri:repo_branches_uri handle_response)
+  Printf.eprintf "%s/%s:\n%!" org repo;
+  ask_github (Github.Repo.branches ~token:token ~user:org ~repo:repo) >>= fun repo_branches ->
+  print_repo_branches repo_branches
 
 (* This code assumes you have already gotten the token
    and saved it locally in your cookie jar *)
