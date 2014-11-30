@@ -19,7 +19,8 @@ Executable "ogh"
     github.unix,
     lwt.unix,
     batteries,
-    yojson
+    leveldb,
+    threads
 
 
 
